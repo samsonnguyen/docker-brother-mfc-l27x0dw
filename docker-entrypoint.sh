@@ -11,5 +11,4 @@ lpoptions -d "${PRINTER_NAME}"
 brsaneconfig4 -a name="${PRINTER_NAME}" model="MFC-L2700DW" ip=${PRINTER_IP}
 
 set -- ${saved[*]}
-echo "TEST"
 exec "$@"
