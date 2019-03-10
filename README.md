@@ -3,7 +3,7 @@ Docker container for setting up a cups server with drivers for Brother-L2700DW m
 Usage
 ===
 ```
-docker run -e PRINTER_NAME='Brother-MFC-L2700DW' -e PRINTER_IP='10.10.10.1' -p 631:631 -it -v ${PWD}/cupds.conf:/etc/cups/cupsd.conf:ro samsonnguyen/docker-brother-mfc-l27x0dw
+docker run -e PRINTER_NAME='Brother-MFC-L2700DW' -e PRINTER_IP='10.10.10.1' -p 631:631 -p 54925:54925/udp -it samsonnguyen/docker-brother-mfc-l27x0dw
 ```
 
 Access the cups server at http://127.0.0.1:631
