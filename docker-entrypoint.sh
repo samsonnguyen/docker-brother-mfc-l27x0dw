@@ -8,7 +8,7 @@ lpadmin -p "${PRINTER_NAME}" -E -v "ipp://${PRINTER_IP}" -m brother-MFCL2710DW-c
 echo `lpstat -p "${PRINTER_NAME}" -l`
 lpoptions -d "${PRINTER_NAME}"
 
-brsaneconfig4 -a name="${PRINTER_NAME}" model="MFC-L2700DW" ip=${PRINTER_IP}
+brsaneconfig4 -a name="${DEVICE_NAME}" model=${MODEL} ip=${PRINTER_IP}
 
 set -- ${saved[*]}
 exec "$@"

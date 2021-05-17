@@ -6,18 +6,37 @@ RUN apt-get update && apt-get install -y wget \
   cups-client \
   zip \
   iputils-ping \
-  libusb-0.1-4
+  libusb-0.1-4 \
+  python3 \
+  img2pdf \
+  pdftk \
+  && rm -rf /var/lib/apt/lists/*
 RUN wget https://download.brother.com/welcome/dlf103526/mfcl2710dwpdrv-4.0.0-1.i386.deb
 RUN dpkg -i --force-all mfcl2710dwpdrv-4.0.0-1.i386.deb
-RUN wget https://download.brother.com/welcome/dlf006645/brscan4-0.4.7-1.amd64.deb
-RUN dpkg -i --force-all brscan4-0.4.7-1.amd64.deb
-RUN wget https://download.brother.com/welcome/dlf006652/brscan-skey-0.2.4-1.amd64.deb
-RUN dpkg -i --force-all brscan-skey-0.2.4-1.amd64.deb 
+RUN wget https://download.brother.com/welcome/dlf105200/brscan4-0.4.10-1.amd64.deb
+RUN dpkg -i --force-all brscan4-0.4.10-1.amd64.deb
+RUN wget https://download.brother.com/welcome/dlf006652/brscan-skey-0.3.1-2.amd64.deb
+RUN dpkg -i --force-all brscan-skey-0.3.1-2.amd64.deb
 RUN wget https://download.brother.com/welcome/dlf006654/brother-udev-rule-type1-1.0.2-0.all.deb
 RUN dpkg -i brother-udev-rule-type1-1.0.2-0.all.deb
+
+VOLUME /scans
+ENV SAVETO=/scans
+
 EXPOSE 54925/udp
+EXPOSE 54925
+EXPOSE 54921
+EXPOSE 631
+
 COPY docker-entrypoint.sh /usr/bin/docker-entrypoint-brother.sh
 COPY cupds.conf /etc/cups/cupsd.conf
+
+COPY scanner-scripts/* /opt/brother/scanner/brscan-skey/script/
+COPY brscan-skey.config /opt/brother/scanner/brscan-skey/brscan-skey.config
+COPY scanutils.py /opt/brother/scanner/brscan-skey/script/scanutils.py
+
+RUN ln -sf /opt/brother/scanner/brscan-skey/brscan-skey.config /opt/brother/scanner/brscan-skey/brscan-skey.cfg
+
 RUN chmod +x /usr/bin/docker-entrypoint-brother.sh
 ENTRYPOINT ["/usr/bin/docker-entrypoint-brother.sh"]
-CMD ["brscan-skey","-f"]
+CMD ["brscan-skey","-f"] # run in foreground

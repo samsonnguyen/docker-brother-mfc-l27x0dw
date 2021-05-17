@@ -1,20 +1,26 @@
-Docker container for setting up a cups server with drivers for Brother-L2700DW multi-function printers.
+All-in-one container that will run a cupsd service as well as set up brscan-skey so that the scanner functions on the panel also work. Excellent scanner scripts from [arjunkc/scanner-scripts](https://github.com/arjunkc/scanner-scripts) which adds the ability to do duplex scanning as well as automatic conversion to pdf.
 
-Usage
-===
+
+# Usage
+
 ```
-docker run -e PRINTER_NAME='Brother-MFC-L2700DW' -e PRINTER_IP='10.10.10.1' -p 631:631 -p 54925:54925/udp -it samsonnguyen/docker-brother-mfc-l27x0dw
+# modify .env file to fit your environment
+git submodule init && git submodule update
+docker run --env-file=.env --net=host -it samsonnguyen/docker-brother-mfc-l27x0dw
 ```
 
-Access the cups server at http://127.0.0.1:631
+## Default env variables
 
-Printer
-===
+| variable | default |
 
-You can print with any cups compatible client
 
-Scanner
-===
+# Printer
+
+Access the cups server at [http://127.0.0.1:631](http://127.0.0.1:631)
+
+You can print with any cups compatible client connected to this container over port 631/tcp
+
+# Scanner
 
 Use the scanner functions
 
@@ -28,3 +34,17 @@ docker exec [container] scanimage -d 'brother4:net1;dev0' -h
 # This outputs directly to your host
 docker exec [container] scanimage --format "tiff" > test.tiff
 ```
+
+## Scanner Gotchas for skey functions
+
+Need to start the container in host network mode since the printer needs direct access to the eth0 interface
+
+```
+ --net=host
+```
+
+The printer needs to connect over port `54925/udp`
+
+Configurations and scripts are in `/opt/brother/scanner/brscan-skey`
+
+Scans will go to to the `/scans` volume

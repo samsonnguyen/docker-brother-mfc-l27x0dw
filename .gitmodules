@@ -1,0 +1,3 @@
+[submodule "scanner-scripts"]
+	path = scanner-scripts
+	url = https://github.com/arjunkc/scanner-scripts.git
