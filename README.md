@@ -1,6 +1,5 @@
 All-in-one container that will run a cupsd service as well as set up brscan-skey so that the scanner functions on the panel also work. Excellent scanner scripts from [arjunkc/scanner-scripts](https://github.com/arjunkc/scanner-scripts) which adds the ability to do duplex scanning as well as automatic conversion to pdf.
 
-
 # Usage
 
 ```
@@ -8,11 +7,6 @@ All-in-one container that will run a cupsd service as well as set up brscan-skey
 git submodule init && git submodule update
 docker run --env-file=.env --net=host -it samsonnguyen/docker-brother-mfc-l27x0dw
 ```
-
-## Default env variables
-
-| variable | default |
-
 
 # Printer
 
