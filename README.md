@@ -1,4 +1,10 @@
-All-in-one container that will run a cupsd service as well as set up brscan-skey so that the scanner functions on the panel also work. Excellent scanner scripts from [arjunkc/scanner-scripts](https://github.com/arjunkc/scanner-scripts) which adds the ability to do duplex scanning as well as automatic conversion to pdf.
+All-in-one container that will run a cupsd service as well as set up brscan-skey so that the scanner functions on the panel also work. 
+
+Tested only with:
+
+* MFC-L2700DW
+
+Inspiration for the scripts came from the work here [arjunkc/scanner-scripts](https://github.com/arjunkc/scanner-scripts) which adds the ability to do duplex scanning as well as automatic conversion to pdf. I decided to re-write the scripts so that they are more manageable and work specifically for this container
 
 # Usage
 

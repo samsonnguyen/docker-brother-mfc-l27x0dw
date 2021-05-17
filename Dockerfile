@@ -7,9 +7,9 @@ RUN apt-get update && apt-get install -y wget \
   zip \
   iputils-ping \
   libusb-0.1-4 \
-  python3 \
   img2pdf \
-  pdftk \
+  ruby \
+  ruby-byebug \
   && rm -rf /var/lib/apt/lists/*
 RUN wget https://download.brother.com/welcome/dlf103526/mfcl2710dwpdrv-4.0.0-1.i386.deb
 RUN dpkg -i --force-all mfcl2710dwpdrv-4.0.0-1.i386.deb
@@ -31,11 +31,8 @@ EXPOSE 631
 COPY docker-entrypoint.sh /usr/bin/docker-entrypoint-brother.sh
 COPY cupds.conf /etc/cups/cupsd.conf
 
-COPY scanner-scripts/* /opt/brother/scanner/brscan-skey/script/
+COPY scripts/* /opt/brother/scanner/brscan-skey/script/
 COPY brscan-skey.config /opt/brother/scanner/brscan-skey/brscan-skey.config
-COPY scanutils.py /opt/brother/scanner/brscan-skey/script/scanutils.py
-
-RUN ln -sf /opt/brother/scanner/brscan-skey/brscan-skey.config /opt/brother/scanner/brscan-skey/brscan-skey.cfg
 
 RUN chmod +x /usr/bin/docker-entrypoint-brother.sh
 ENTRYPOINT ["/usr/bin/docker-entrypoint-brother.sh"]
