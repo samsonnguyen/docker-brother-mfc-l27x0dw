@@ -48,22 +48,19 @@ class BatchScan
       if active_job?
         # Scan even pages
         batch_template = batch_template(outputdir: $options[:outputdir], prefix: $options[:prefix], timestamp: @current_job[:timestamp])
-        files = scan(resolution: $options[:resolution], batch_template: batch_template, batch_start: 2, batch_increment: 2, mode: $options[:mode], source: $options[:source])
-        @current_job[:files] << (files - @current_job[:files])
+        @current_job[:files] = scan(resolution: $options[:resolution], batch_template: batch_template, batch_start: 2, batch_increment: 2, mode: $options[:mode], source: $options[:source])
         combine_and_finalize
       else
         # Scan odd pages
         batch_template = batch_template(outputdir: $options[:outputdir], prefix: $options[:prefix], timestamp: $options[:timestamp])
-        files = scan(resolution: $options[:resolution], batch_template: batch_template, batch_start: 1, batch_increment: 2, mode: $options[:mode], source: $options[:source])
-        @current_job[:files] = files
+        @current_job[:files] = scan(resolution: $options[:resolution], batch_template: batch_template, batch_start: 1, batch_increment: 2, mode: $options[:mode], source: $options[:source])
         @current_job[:timestamp] = $options[:timestamp]
         finalize
       end
     else
       $logger.info("non-duplex mode")
       batch_template = batch_template(outputdir: $options[:outputdir], prefix: $options[:prefix], timestamp: $options[:timestamp])
-      files = scan(resolution: $options[:resolution], batch_template: batch_template, batch_start: 1, batch_increment: 1, mode: $options[:mode], source: $options[:source])
-      @current_job[:files] = files
+      @current_job[:files] = scan(resolution: $options[:resolution], batch_template: batch_template, batch_start: 1, batch_increment: 1, mode: $options[:mode], source: $options[:source])
       @current_job[:timestamp] = $options[:timestamp]
       combine_and_finalize
     end
