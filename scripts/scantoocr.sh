@@ -20,7 +20,7 @@ scan_height=${SCAN_HEIGHT:-"279.4"}
 scan_mode=${SCAN_MODE:-"Black & White"}
 scan_source=${SCAN_SOURCE:-"Automatic Document Feeder(left aligned,Duplex)"}
 epochnow=$(date '+%s')
-fileprefix='scantofile'
+fileprefix='scantoocr'
 brscan_skey_install_dir='/opt/brother/scanner/brscan-skey/'
 saveto=${SAVETO:-"/scans"}
 

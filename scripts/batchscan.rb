@@ -49,7 +49,7 @@ class BatchScan
         # Scan even pages
         batch_template = batch_template(outputdir: $options[:outputdir], prefix: $options[:prefix], timestamp: @current_job[:timestamp])
         files = scan(resolution: $options[:resolution], batch_template: batch_template, batch_start: 2, batch_increment: 2, mode: $options[:mode], source: $options[:source])
-        @current_job[:files] = @current_job[:files] + files
+        @current_job[:files] << (files - @current_job[:files])
         combine_and_finalize
       else
         # Scan odd pages
