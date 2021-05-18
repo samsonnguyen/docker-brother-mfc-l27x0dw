@@ -14,13 +14,13 @@ set -x
 #   query device with scanimage -h to get allowed resolutions
 #   Will scan from the 'brother4:net1;dev0' scanner by default.
 
-scan_resolution=${SCAN_RESOLUTION:-"300"}
+scan_resolution=${SCAN_RESOLUTION:-"600"}
 scan_width=${SCAN_WIDTH:-"215.88"}
 scan_height=${SCAN_HEIGHT:-"279.4"}
-scan_mode=${SCAN_MODE:-"Black & White"}
+scan_mode=${SCAN_MODE:-"24bit Color"}
 scan_source=${SCAN_SOURCE:-"Automatic Document Feeder(left aligned,Duplex)"}
-epochnow="1621289310"
-fileprefix='scantofile'
+epochnow=$(date '+%s')
+fileprefix='scantoimage'
 brscan_skey_install_dir='/opt/brother/scanner/brscan-skey/'
 saveto=${SAVETO:-"/scans"}
 
@@ -35,4 +35,4 @@ exec ruby ${brscan_skey_install_dir}/script/batchscan.rb \
     --width $scan_width \
     --mode "$scan_mode" \
     --source "$scan_source" \
-    --duplex "false" 
+    --duplex "false"

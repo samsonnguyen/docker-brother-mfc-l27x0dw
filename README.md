@@ -48,3 +48,14 @@ The printer needs to connect over port `54925/udp`
 Configurations and scripts are in `/opt/brother/scanner/brscan-skey`
 
 Scans will go to to the `/scans` volume
+
+## Scanner functions
+
+I've repurposed the modes to suit my own needs
+
+| Scan to mode | duplex | mode | resolution | description |
+| --- | --- | --- | --- | --- |
+| scantoocr | yes | Black & White | 300 | Quick scanning for OCR purposes |
+| scantoemail | yes | Gray[Error Diffusion] | 400 | Higher quality grayscale for OCR purposes | 
+| scantoimage | no | 24bit Color | 600 | Higher quality color |
+| scantofile | no | Gray[Error Diffusion] | 300 | Non duplex grayscale for OCR purposes |
