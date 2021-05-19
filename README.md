@@ -55,7 +55,7 @@ I've repurposed the modes to suit my own needs
 
 | Scan to mode | duplex | mode | resolution | description |
 | --- | --- | --- | --- | --- |
-| scantoocr | yes | Black & White | 300 | Quick scanning for OCR purposes |
-| scantoemail | yes | Gray[Error Diffusion] | 400 | Higher quality grayscale for OCR purposes | 
-| scantoimage | no | 24bit Color | 600 | Higher quality color |
-| scantofile | no | Gray[Error Diffusion] | 300 | Non duplex grayscale for OCR purposes |
+| scantoocr | yes | Gray[Error Diffusion] | 300 | Duplex grayscale for OCR purposes |
+| scantofile | no | Gray[Error Diffusion] | 300 | Non-duplex grayscale for OCR purposes |
+| scantoemail | yes | 24bit Color | 300 | Duplex color for OCR purposes | 
+| scantoimage | no | 24bit Color | 600 | Non-duplex high quality color |
