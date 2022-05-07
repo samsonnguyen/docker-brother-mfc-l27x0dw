@@ -58,4 +58,4 @@ I've repurposed the modes to suit my own needs
 | scantoocr | yes | Gray[Error Diffusion] | 300 | Duplex grayscale for OCR purposes |
 | scantofile | no | Gray[Error Diffusion] | 300 | Non-duplex grayscale for OCR purposes |
 | scantoemail | yes | 24bit Color | 300 | Duplex color for OCR purposes | 
-| scantoimage | no | 24bit Color | 600 | Non-duplex high quality color |
+| scantoimage | no | 24bit Color | 300 | Non-duplex high quality color |

@@ -14,7 +14,7 @@ set -x
 #   query device with scanimage -h to get allowed resolutions
 #   Will scan from the 'brother4:net1;dev0' scanner by default.
 
-scan_resolution=${SCAN_RESOLUTION:-"600"}
+scan_resolution=${SCAN_RESOLUTION:-"300"}
 scan_width=${SCAN_WIDTH:-"215.88"}
 scan_height=${SCAN_HEIGHT:-"279.4"}
 scan_mode=${SCAN_MODE:-"24bit Color"}
