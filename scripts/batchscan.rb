@@ -84,7 +84,7 @@ class BatchScan
   def reverse_even_pages
     even_index = @current_job[:files].size - 1
     even_index -= 1 unless even_index % 2 == 1
-
+    files = []
     @current_job[:files].each_with_index do |file, index|
       if index % 2 == 0
         # odd pages
