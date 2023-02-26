@@ -49,6 +49,8 @@ class BatchScan
         # Scan even pages
         batch_template = batch_template(outputdir: $options[:outputdir], prefix: $options[:prefix], timestamp: @current_job[:timestamp])
         @current_job[:files] = scan(resolution: $options[:resolution], batch_template: batch_template, batch_start: 2, batch_increment: 2, mode: $options[:mode], source: $options[:source])
+        # Assuming we are flipping the stack, the even pages will be in reverse order
+        reverse_even_pages
         combine_and_finalize
       else
         # Scan odd pages
@@ -62,6 +64,7 @@ class BatchScan
       batch_template = batch_template(outputdir: $options[:outputdir], prefix: $options[:prefix], timestamp: $options[:timestamp])
       @current_job[:files] = scan(resolution: $options[:resolution], batch_template: batch_template, batch_start: 1, batch_increment: 1, mode: $options[:mode], source: $options[:source])
       @current_job[:timestamp] = $options[:timestamp]
+      @current_job[:files].sort
       combine_and_finalize
     end
   end
@@ -71,11 +74,27 @@ class BatchScan
   end
 
   def combine_and_finalize
-    filepath = combine(@current_job[:files].sort) unless @current_job[:files].empty?
+    filepath = combine(@current_job[:files]) unless @current_job[:files].empty?
     $logger.error("skipping combine! No files found") if @current_job[:files].empty?
     @current_job = {}
     finalize
     $logger.info("Final filepath: #{filepath}")
+  end
+
+  def reverse_even_pages
+    even_index = @current_job[:files].size - 1
+    even_index -= 1 unless even_index % 2 == 1
+
+    @current_job[:files].each_with_index do |file, index|
+      if index % 2 == 0
+        # odd pages
+        files << file
+      else
+        files << @current_job[:files][even_index]
+        even_index -= 2
+      end
+    end
+    @current_job[:files] = files
   end
 
   def finalize
