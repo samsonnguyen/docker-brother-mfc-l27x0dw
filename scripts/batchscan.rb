@@ -50,6 +50,7 @@ class BatchScan
         batch_template = batch_template(outputdir: $options[:outputdir], prefix: $options[:prefix], timestamp: @current_job[:timestamp])
         @current_job[:files] = scan(resolution: $options[:resolution], batch_template: batch_template, batch_start: 2, batch_increment: 2, mode: $options[:mode], source: $options[:source])
         # Assuming we are flipping the stack, the even pages will be in reverse order
+        @current_job[:files].sort
         reverse_even_pages
         combine_and_finalize
       else
