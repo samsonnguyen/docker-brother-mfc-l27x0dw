@@ -2,7 +2,8 @@
 set -e
 saved=("$@")
 set --
-source ${PREFIX}/bin/docker-entrypoint.sh
+
+echo "Starting cupsd"
 cupsd
 lpadmin -p "${PRINTER_NAME}" -E -v "ipp://${PRINTER_IP}" -m brother-MFCL2710DW-cups-en.ppd
 echo `lpstat -p "${PRINTER_NAME}" -l`
