@@ -3,8 +3,8 @@ require 'fileutils'
 
 module Scanner
   def scan(resolution: 300, batch_template:, batch_start: 1, batch_increment: 2, mode: , source: )
-    $logger.debug("scanimage -v -v -p --batch='#{batch_template}' --batch-start #{batch_start} --batch-increment #{batch_increment} --resolution #{resolution} --mode '#{mode}' --source '#{source}' --format jpg")
-    IO.popen("scanimage -v -v -p --batch='#{batch_template}' --batch-start #{batch_start} --batch-increment #{batch_increment} --resolution #{resolution} --mode '#{mode}' --source '#{source}' --format jpg") do |f|  
+    $logger.debug("scanimage -v -v -p --batch='#{batch_template}' --batch-start #{batch_start} --batch-increment #{batch_increment} --resolution #{resolution} --mode '#{mode}' --source '#{source}' --format jpeg")
+    IO.popen("scanimage -v -v -p --batch='#{batch_template}' --batch-start #{batch_start} --batch-increment #{batch_increment} --resolution #{resolution} --mode '#{mode}' --source '#{source}' --format jpeg") do |f|  
       f.each do |line|
         $logger.info f.readlines
       end
