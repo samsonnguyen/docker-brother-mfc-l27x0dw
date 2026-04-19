@@ -11,12 +11,14 @@ RUN apt-get update && apt-get install -y wget \
   ruby \
   ruby-byebug \
   && rm -rf /var/lib/apt/lists/*
-RUN wget https://download.brother.com/welcome/dlf103526/mfcl2710dwpdrv-4.0.0-1.i386.deb
-RUN dpkg -i --force-all mfcl2710dwpdrv-4.0.0-1.i386.deb
-RUN wget https://download.brother.com/welcome/dlf105200/brscan4-0.4.10-1.amd64.deb
-RUN dpkg -i --force-all brscan4-0.4.10-1.amd64.deb
-RUN wget https://download.brother.com/welcome/dlf006652/brscan-skey-0.3.1-2.amd64.deb
-RUN dpkg -i --force-all brscan-skey-0.3.1-2.amd64.deb
+RUN wget https://download.brother.com/welcome/dlf101792/mfcl2700dwcupswrapper-3.2.0-1.i386.deb
+RUN dpkg -i --force-all mfcl2700dwcupswrapper-3.2.0-1.i386.deb
+RUN wget https://download.brother.com/welcome/dlf101791/mfcl2700dwlpr-3.2.0-1.i386.deb
+RUN dpkg -i --force-all mfcl2700dwlpr-3.2.0-1.i386.deb
+RUN wget https://download.brother.com/welcome/dlf105200/brscan4-0.4.11-1.amd64.deb
+RUN dpkg -i --force-all brscan4-0.4.11-1.amd64.deb
+RUN wget https://download.brother.com/welcome/dlf006652/brscan-skey-0.3.4-0.amd64.deb
+RUN dpkg -i --force-all brscan-skey-0.3.4-0.amd64.deb
 RUN wget https://download.brother.com/welcome/dlf006654/brother-udev-rule-type1-1.0.2-0.all.deb
 RUN dpkg -i brother-udev-rule-type1-1.0.2-0.all.deb
 
@@ -36,4 +38,5 @@ COPY brscan-skey.config /opt/brother/scanner/brscan-skey/brscan-skey.config
 
 RUN chmod +x /usr/bin/docker-entrypoint-brother.sh
 ENTRYPOINT ["/usr/bin/docker-entrypoint-brother.sh"]
-CMD ["brscan-skey","-f"] # run in foreground
+# run in foreground
+CMD ["brscan-skey","-f"]
