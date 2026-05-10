@@ -13,7 +13,7 @@ jobs:
       if: ${{ !env.ACT }}
     - name: build dev
       if: ${{ !env.ACT }}
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v7
       with:
         context: ./
         file: ./Dockerfile
