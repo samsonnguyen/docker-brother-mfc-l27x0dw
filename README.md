@@ -1,4 +1,9 @@
-All-in-one container that will run a cupsd service as well as set up brscan-skey so that the scanner functions on the panel also work. 
+[![Publish container to ghcr.io](https://github.com/samsonnguyen/docker-brother-mfc-l27x0dw/actions/workflows/publish.yml/badge.svg)](https://github.com/samsonnguyen/docker-brother-mfc-l27x0dw/actions/workflows/publish.yml)
+[![ghcr.io](https://img.shields.io/badge/ghcr.io-samsonnguyen%2Fdocker--brother--mfc--l27x0dw-blue?logo=docker)](https://github.com/samsonnguyen/docker-brother-mfc-l27x0dw/pkgs/container/docker-brother-mfc-l27x0dw)
+
+All-in-one container that will run a cupsd service as well as set up brscan-skey so that the scanner functions on the panel also work.
+
+Available on GHCR: [`ghcr.io/samsonnguyen/docker-brother-mfc-l27x0dw`](https://github.com/samsonnguyen/docker-brother-mfc-l27x0dw/pkgs/container/docker-brother-mfc-l27x0dw)
 
 Tested only with:
 
@@ -11,7 +16,7 @@ Inspiration for the scripts came from the work here [arjunkc/scanner-scripts](ht
 ```
 # modify .env file to fit your environment
 git submodule init && git submodule update
-docker run --env-file=.env --net=host -it samsonnguyen/docker-brother-mfc-l27x0dw
+docker run --env-file=.env --net=host -it ghcr.io/samsonnguyen/docker-brother-mfc-l27x0dw:latest
 ```
 
 # Printer
