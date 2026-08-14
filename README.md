@@ -31,24 +31,54 @@ The Brother drivers are i386/amd64 only, so the image does not run on arm64 node
 
 Everything is resolved at runtime, in this order (last wins):
 
-1. built-in defaults
+1. built-in defaults (below)
 2. `/etc/brother/scan.yaml`
 3. environment variables
 
 `brscan-skey` forks a fresh process for each button press, so the config is re-read
-on every scan. Mounting `scan.yaml` from a ConfigMap means `kubectl edit configmap`
-changes the next scan — no pod restart, no rollout.
+on **every scan**. Mounting `scan.yaml` from a ConfigMap means `kubectl edit configmap`
+changes the next scan — no pod restart, no rollout. Environment changes need a
+restart, so prefer the file for anything you expect to tune.
 
-See [`etc/brother/scan.yaml`](etc/brother/scan.yaml) for the full annotated file.
+The image ships [`etc/brother/scan.yaml`](etc/brother/scan.yaml) at
+`/etc/brother/scan.yaml`, annotated and pre-filled for an MFC-L2700DW at
+`192.168.1.62`. Override the printer settings for your own network.
+
+## Scan keys
+
+The panel has four fixed destinations — `file`, `ocr`, `email`, `image`. The
+hardware decides the names; the config decides what each one does.
+
+Shipped defaults:
+
+| Key | duplex | mode | resolution | source |
+| --- | --- | --- | --- | --- |
+| `file` | no | `Gray[Error Diffusion]` | 300 | ADF |
+| `ocr` | yes | `Gray[Error Diffusion]` | 300 | ADF duplex |
+| `email` | yes | `24bit Color[Fast]` | 300 | ADF duplex |
+| `image` | no | `24bit Color[Fast]` | 300 | ADF |
+
+All four also inherit `width: 215.88`, `height: 279.4` (US Letter, mm) and
+`batch_threshold: 10m`.
+
+### Per-key fields
+
+| Field | Default | Notes |
+| --- | --- | --- |
+| `resolution` | `300` | 100, 150, 200, 300, 400, 600, 1200… |
+| `mode` | `Gray[Error Diffusion]` | must match the driver's string exactly |
+| `duplex` | `false` | selects the ADF source automatically |
+| `source` | auto | only to override that automatic choice |
+| `width` / `height` | `215.88` / `279.4` | millimetres |
+| `batch_threshold` | `10m` | window to press the same key again for side two |
+
+Anything under `keys:` overrides `defaults:` for that key alone:
 
 ```yaml
-printer:
-  model: Brother-MFC-L2700DW
-  ip: 192.168.1.62
-
 defaults:
   resolution: 300
   mode: Gray[Error Diffusion]
+  duplex: false
 
 keys:
   ocr:
@@ -58,21 +88,57 @@ keys:
     resolution: 600
 ```
 
-Do not mount it at `/config` — the CUPS base image already uses that path.
+Durations accept plain seconds or a suffix: `600`, `10m`, `72h`, `1d`.
 
 ## Environment variables
 
-| Variable | Sets |
-| --- | --- |
-| `MODEL`, `PRINTER_NAME`, `PRINTER_IP`, `DEVICE_NAME` | printer identity |
-| `SAVETO`, `LOGDIR` | output and log locations |
-| `SCAN_DEFAULT_<FIELD>` | a scan field for every key |
-| `SCAN_<KEY>_<FIELD>` | a scan field for one key, e.g. `SCAN_OCR_RESOLUTION=600` |
-| `SUPERVISOR_RECYCLE_INTERVAL` | how often to recycle `brscan-skey-exe` |
-| `SUPERVISOR_SCAN_GRACE` | how long `SIGTERM` waits for an in-flight scan |
+| Variable | Sets | Default |
+| --- | --- | --- |
+| `MODEL` | printer model | — (required) |
+| `PRINTER_NAME` | CUPS queue name | falls back to `MODEL` |
+| `PRINTER_IP` | printer address | — (required) |
+| `DEVICE_NAME` | SANE device name | falls back to `PRINTER_NAME` |
+| `SAVETO` | where PDFs land | `/scans` |
+| `LOGDIR` | brscan-skey logs | `/var/log/brother` |
+| `SCAN_DEFAULT_<FIELD>` | one field, every key | — |
+| `SCAN_<KEY>_<FIELD>` | one field, one key | — |
+| `SUPERVISOR_RECYCLE_INTERVAL` | brscan-skey-exe recycle | `72h` |
+| `SUPERVISOR_RESTART_DELAY` | wait before restarting a dead service | `5s` |
+| `SUPERVISOR_SCAN_GRACE` | `SIGTERM` wait for an in-flight scan | `60s` |
 
-`<FIELD>` is one of `resolution`, `width`, `height`, `mode`, `source`, `duplex`,
-`batch_threshold`. Per-key beats default.
+`<KEY>` is `FILE`, `OCR`, `EMAIL` or `IMAGE`; `<FIELD>` is any per-key field above.
+Per-key beats default — `SCAN_OCR_RESOLUTION=600` raises only OCR.
+
+## In Kubernetes
+
+```yaml
+persistence:
+  brother-config:
+    type: configMap
+    name: brother-printer-scan-config
+    globalMounts:
+      - path: /etc/brother/scan.yaml
+        subPath: scan.yaml
+```
+
+Use `subPath` so the rest of `/etc/brother/` is left intact, and **never mount at
+`/config`** — the CUPS base image already claims that path as its volume.
+
+## Checking what is in effect
+
+```bash
+docker exec [container] python3 -c \
+  "from brother import config as c; cfg = c.load(); \
+   [print(k, c.scan_profile(cfg, k)) for k in c.SCAN_KEYS]"
+```
+
+Two things to watch for:
+
+* `mode` is passed to `scanimage` verbatim, so a typo fails at scan time rather
+  than at startup. List the values the scanner accepts with
+  `scanimage -d 'brother4:net1;dev0' -h`.
+* Because config is read per scan, a broken file surfaces on the next button
+  press. Run the command above after editing.
 
 # Printer
 
@@ -92,17 +158,10 @@ docker exec [container] scanimage -d 'brother4:net1;dev0' -h
 
 Scans land in the `/scans` volume as a single PDF per job.
 
-## Scan keys
+Each key writes to `<SAVETO>/<key>-<timestamp>.pdf`, with the individual page
+scans kept under `<SAVETO>/<key>/<timestamp>/`.
 
-The panel offers four fixed destinations. What each one does is entirely config —
-the table below is only the shipped default.
-
-| Key | duplex | mode | resolution |
-| --- | --- | --- | --- |
-| `scantofile` | no | Gray[Error Diffusion] | 300 |
-| `scantoocr` | yes | Gray[Error Diffusion] | 300 |
-| `scantoemail` | yes | 24bit Color[Fast] | 300 |
-| `scantoimage` | no | 24bit Color[Fast] | 300 |
+See [Scan keys](#scan-keys) for what each button does and how to change it.
 
 Duplex is two passes. Press the key, let the fronts feed, flip the stack, press the
 same key again within `batch_threshold` (10m default); the backs are interleaved
