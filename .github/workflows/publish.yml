@@ -16,7 +16,17 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Build and run driver checks
+        run: bash tests/run.sh
+
   build-and-push:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -57,7 +67,8 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          # Brother ships i386/amd64 drivers only — there is no arm64 build.
+          platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

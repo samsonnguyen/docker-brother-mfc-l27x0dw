@@ -1,0 +1,50 @@
+# Mount over /etc/brother/scan.yaml (e.g. from a ConfigMap) to change any of
+# this at runtime. brscan-skey forks a fresh process per button press, so edits
+# take effect on the next scan — no pod restart required.
+#
+# Every field can also be set by environment variable; env wins over this file.
+
+printer:
+  model: Brother-MFC-L2700DW      # MODEL
+  name: Brother-MFC-L2700DW       # PRINTER_NAME
+  ip: 192.168.1.62                # PRINTER_IP
+  # device_name:                  # DEVICE_NAME, defaults to printer.name
+  # ppd:                          # defaults to the single PPD under /opt/brother/Printers
+
+scanner:
+  saveto: /scans                  # SAVETO
+  logdir: /var/log/brother        # LOGDIR
+  # sane_device:                  # SANE_DEVICE, only used if brscan-skey passes none
+
+supervisor:
+  # brscan-skey-exe segfaults in register_pc_legacy at ~85h of uptime, on a
+  # clock that resets when the process starts. Recycling below that means the
+  # fault never fires. Recycles are deferred while a scan is in flight.
+  recycle_interval: 72h           # SUPERVISOR_RECYCLE_INTERVAL
+  restart_delay: 5s               # SUPERVISOR_RESTART_DELAY
+  # How long to wait for an in-flight scan on SIGTERM. Keep this under the
+  # pod's terminationGracePeriodSeconds or the kubelet will SIGKILL first.
+  scan_grace: 60s                 # SUPERVISOR_SCAN_GRACE
+
+# Applied to every key unless overridden below. Env: SCAN_DEFAULT_<FIELD>
+defaults:
+  resolution: 300
+  width: 215.88
+  height: 279.4
+  mode: Gray[Error Diffusion]
+  duplex: false
+  batch_threshold: 10m            # window to press the same key again for side two
+  # source:                       # defaults to the ADF, duplex variant when duplex: true
+
+# Per-key overrides. Env: SCAN_<KEY>_<FIELD>, e.g. SCAN_OCR_RESOLUTION=600
+keys:
+  file:
+    duplex: false
+  ocr:
+    duplex: true
+  email:
+    mode: 24bit Color[Fast]
+    duplex: true
+  image:
+    mode: 24bit Color[Fast]
+    duplex: false
