@@ -18,16 +18,24 @@ ADF_DUPLEX = "Automatic Document Feeder(left aligned,Duplex)"
 ADF_SIMPLEX = "Automatic Document Feeder(left aligned)"
 
 BUILTIN = {
+    # The Brother PPD ships *DefaultPageSize: A4, so the queue default has to be
+    # set explicitly or every job comes out A4 regardless of the paper loaded.
     "printer": {
         "model": None,
         "name": None,
         "ip": None,
         "device_name": None,
+        "page_size": "Letter",
     },
     "scanner": {
         "saveto": "/scans",
         "logdir": "/var/log/brother",
         "sane_device": None,
+        # Brother's own scripts pause before opening a network device and retry
+        # once if nothing came out; the scanner is still finishing its side of
+        # the button press and rejects an early open with "Invalid argument".
+        "open_delay": "1s",
+        "attempts": 2,
     },
     # brscan-skey-exe segfaults in register_pc_legacy at ~85h of uptime, every
     # time. Recycling well short of that keeps the fault from ever firing.
@@ -114,9 +122,12 @@ def load():
         ("printer", "name", "PRINTER_NAME"),
         ("printer", "ip", "PRINTER_IP"),
         ("printer", "device_name", "DEVICE_NAME"),
+        ("printer", "page_size", "PAGE_SIZE"),
         ("scanner", "saveto", "SAVETO"),
         ("scanner", "logdir", "LOGDIR"),
         ("scanner", "sane_device", "SANE_DEVICE"),
+        ("scanner", "open_delay", "SCAN_OPEN_DELAY"),
+        ("scanner", "attempts", "SCAN_ATTEMPTS"),
         ("supervisor", "recycle_interval", "SUPERVISOR_RECYCLE_INTERVAL"),
         ("supervisor", "restart_delay", "SUPERVISOR_RESTART_DELAY"),
         ("supervisor", "scan_grace", "SUPERVISOR_SCAN_GRACE"),

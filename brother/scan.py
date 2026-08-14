@@ -39,7 +39,8 @@ def scanned_files(template):
     return sorted(str(p) for p in directory.glob(Path(template).name.replace("%03d", "*")))
 
 
-def run_scanimage(device, profile, template, batch_start, batch_increment):
+def run_scanimage(device, profile, template, batch_start, batch_increment,
+                  attempts=2, open_delay=1.0):
     argv = [
         "scanimage",
         "--format", "jpeg",
@@ -55,14 +56,34 @@ def run_scanimage(device, profile, template, batch_start, batch_increment):
     if device:
         argv[1:1] = ["-d", device]
 
-    log.info("running %s", " ".join(argv))
-    result = subprocess.run(argv, capture_output=True, text=True)
-    if result.stderr.strip():
-        log.info("scanimage: %s", result.stderr.strip())
-    # scanimage exits non-zero once the feeder runs dry, which is the normal
-    # end of a batch rather than a failure.
-    if result.returncode != 0:
-        log.debug("scanimage exited %s", result.returncode)
+    before = set(scanned_files(template))
+
+    for attempt in range(1, max(1, attempts) + 1):
+        # The MFC is still finishing its own side of the button press when the
+        # script fires; opening the device too early fails with "Invalid
+        # argument". Brother's scripts pause the same way for net devices.
+        if open_delay and device and "net" in device:
+            time.sleep(open_delay)
+
+        log.info("running %s", " ".join(argv))
+        result = subprocess.run(argv, capture_output=True, text=True)
+        if result.stderr.strip():
+            log.info("scanimage: %s", result.stderr.strip())
+        # scanimage exits non-zero once the feeder runs dry, which is the normal
+        # end of a batch rather than a failure.
+        if result.returncode != 0:
+            log.debug("scanimage exited %s", result.returncode)
+
+        files = scanned_files(template)
+        if set(files) - before:
+            return files
+
+        if attempt < attempts:
+            log.warning(
+                "scanimage produced no pages (attempt %d/%d) — retrying",
+                attempt, attempts,
+            )
+
     return scanned_files(template)
 
 
@@ -156,6 +177,8 @@ def main(argv):
     profile = configlib.scan_profile(config, key)
     device = argv[2] if len(argv) > 2 else config["scanner"].get("sane_device")
     saveto = config["scanner"]["saveto"]
+    attempts = int(config["scanner"]["attempts"])
+    open_delay = configlib.duration(config["scanner"]["open_delay"])
     now = int(time.time())
 
     log.info(
@@ -168,7 +191,8 @@ def main(argv):
 
         if not profile["duplex"]:
             template = batch_template(saveto, key, now)
-            files = run_scanimage(device, profile, template, batch_start=1, batch_increment=1)
+            files = run_scanimage(device, profile, template, batch_start=1, batch_increment=1,
+                                   attempts=attempts, open_delay=open_delay)
             if not files:
                 log.error("no pages scanned — nothing to combine")
                 return 1
@@ -179,7 +203,8 @@ def main(argv):
             timestamp = int(job.state["timestamp"])
             template = batch_template(saveto, key, timestamp)
             before = set(scanned_files(template))
-            files = run_scanimage(device, profile, template, batch_start=2, batch_increment=2)
+            files = run_scanimage(device, profile, template, batch_start=2, batch_increment=2,
+                                   attempts=attempts, open_delay=open_delay)
 
             if not set(files) - before:
                 log.warning("second pass scanned 0 pages — finalizing as single-sided")
@@ -192,7 +217,8 @@ def main(argv):
             return 0
 
         template = batch_template(saveto, key, now)
-        files = run_scanimage(device, profile, template, batch_start=1, batch_increment=2)
+        files = run_scanimage(device, profile, template, batch_start=1, batch_increment=2,
+                              attempts=attempts, open_delay=open_delay)
         if not files:
             log.error("first pass produced no pages — aborting job")
             job.clear()

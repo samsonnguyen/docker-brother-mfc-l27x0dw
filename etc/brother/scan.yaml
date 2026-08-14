@@ -10,11 +10,18 @@ printer:
   ip: 192.168.1.62                # PRINTER_IP
   # device_name:                  # DEVICE_NAME, defaults to printer.name
   # ppd:                          # defaults to the single PPD under /opt/brother/Printers
+  # The PPD ships *DefaultPageSize: A4. CUPS holds the only copy of the queue
+  # and /etc/cups is not persisted, so this is reapplied on every start.
+  page_size: Letter               # PAGE_SIZE
 
 scanner:
   saveto: /scans                  # SAVETO
   logdir: /var/log/brother        # LOGDIR
   # sane_device:                  # SANE_DEVICE, only used if brscan-skey passes none
+  # The MFC is still finishing its side of the button press when the script
+  # fires; opening too early fails with "Invalid argument".
+  open_delay: 1s                  # SCAN_OPEN_DELAY, network devices only
+  attempts: 2                     # SCAN_ATTEMPTS, retries a pass that yielded nothing
 
 supervisor:
   # brscan-skey-exe segfaults in register_pc_legacy at ~85h of uptime, on a

@@ -79,13 +79,19 @@ def cups_ready():
 
 def register_printer(config):
     printer = config["printer"]
-    _run([
+    argv = [
         "lpadmin",
         "-p", printer["name"],
         "-E",
         "-v", f"ipp://{printer['ip']}",
         "-P", find_ppd(config),
-    ])
+    ]
+    # Without this the PPD's own *DefaultPageSize (A4) wins, and CUPS is holding
+    # the only copy of the queue — /etc/cups is not persisted, so it has to be
+    # reapplied on every start rather than set once by hand.
+    if printer.get("page_size"):
+        argv += ["-o", f"PageSize={printer['page_size']}"]
+    _run(argv)
     _run(["lpoptions", "-d", printer["name"]])
     _run(["lpstat", "-p", printer["name"], "-l"])
 
