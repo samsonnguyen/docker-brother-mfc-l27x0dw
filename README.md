@@ -98,8 +98,11 @@ Durations accept plain seconds or a suffix: `600`, `10m`, `72h`, `1d`.
 | `PRINTER_NAME` | CUPS queue name | falls back to `MODEL` |
 | `PRINTER_IP` | printer address | — (required) |
 | `DEVICE_NAME` | SANE device name | falls back to `PRINTER_NAME` |
+| `PAGE_SIZE` | CUPS queue default page size | `Letter` |
 | `SAVETO` | where PDFs land | `/scans` |
 | `LOGDIR` | brscan-skey logs | `/var/log/brother` |
+| `SCAN_OPEN_DELAY` | pause before opening a network scanner | `1s` |
+| `SCAN_ATTEMPTS` | retries for a pass that scanned nothing | `2` |
 | `SCAN_DEFAULT_<FIELD>` | one field, every key | — |
 | `SCAN_<KEY>_<FIELD>` | one field, one key | — |
 | `SUPERVISOR_RECYCLE_INTERVAL` | brscan-skey-exe recycle | `72h` |
@@ -145,6 +148,12 @@ Two things to watch for:
 Access the CUPS server at [http://127.0.0.1:631](http://127.0.0.1:631), or print from any
 CUPS client over `631/tcp`. The queue is registered whenever `cupsd` starts, so a
 `cupsd` restart cannot leave the container without a printer.
+
+The queue default page size is set from `printer.page_size` (`Letter` by default).
+The Brother PPD ships `*DefaultPageSize: A4`, so without this every job comes out
+A4 — 297mm against Letter's 279mm, which overruns the sheet. Setting it by hand
+with `lpadmin` does not survive a restart: `/etc/cups` is not persisted, so the
+queue is rebuilt from config on every start.
 
 # Scanner
 
