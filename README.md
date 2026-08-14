@@ -152,3 +152,22 @@ whole container down with it. Now PID 1 is a supervisor that runs `cupsd` and
 Keep `scan_grace` below the pod's `terminationGracePeriodSeconds`, or the kubelet
 will `SIGKILL` first. A `preStop` hook running `brscan-skey -t` is no longer needed
 and will just cause an extra restart.
+
+# Tests
+
+```
+bash tests/run.sh
+```
+
+Builds the image, starts it as production does, and runs `tests/test-drivers.sh`
+against the live `cupsd`. A temporary queue on the stock `socket` backend points
+at a local capture server, so a real job is spooled, filtered and delivered — the
+bytes land in a file instead of on paper. It asserts the backend received a PJL
+stream, which is the only check that catches the failure mode where the i386
+filters emit nothing and CUPS still reports the job complete.
+
+The production queue uses `ipp://`, so this covers the filter chain and spooling
+rather than the ipp backend. It also verifies the SANE backend loads with all
+libraries resolved, and that no package dependencies are unsatisfied.
+
+CI runs it before publishing.

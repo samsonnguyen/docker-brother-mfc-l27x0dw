@@ -71,9 +71,10 @@ def configure_scanner(config):
 
 
 def cups_ready():
-    return subprocess.run(
-        ["lpstat", "-r"], capture_output=True, text=True
-    ).returncode == 0
+    # `lpstat -r` exits 0 whether or not the scheduler is up, so its exit code
+    # says nothing; only the text distinguishes the two.
+    result = subprocess.run(["lpstat", "-r"], capture_output=True, text=True)
+    return result.returncode == 0 and "not running" not in result.stdout.lower()
 
 
 def register_printer(config):

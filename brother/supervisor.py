@@ -21,6 +21,7 @@ log = logging.getLogger("supervisor")
 
 BRSCAN_SKEY_EXE = "/opt/brother/scanner/brscan-skey/brscan-skey-exe"
 POLL_SECONDS = 1.0
+READY_RETRY_SECONDS = 10
 
 
 class Service:
@@ -34,12 +35,14 @@ class Service:
         self.started_at = None
         self.restart_at = None
         self.ready_done = False
+        self.ready_retry_at = 0.0
 
     def start(self):
         self.process = subprocess.Popen(self.argv)
         self.started_at = time.monotonic()
         self.restart_at = None
         self.ready_done = self.on_ready is None
+        self.ready_retry_at = 0.0
         log.info("started %s (pid %d)", self.name, self.process.pid)
 
     @property
@@ -149,12 +152,18 @@ class Supervisor:
                     service.start()
                 continue
 
-            if not service.ready_done and service.ready_check():
+            if not service.ready_done and now >= service.ready_retry_at and service.ready_check():
                 try:
                     service.on_ready()
+                    service.ready_done = True
                 except Exception:
-                    log.exception("%s post-start hook failed", service.name)
-                service.ready_done = True
+                    # Registering the queue is what makes the container useful,
+                    # so keep retrying rather than leaving it silently unset.
+                    service.ready_retry_at = now + READY_RETRY_SECONDS
+                    log.exception(
+                        "%s post-start hook failed — retrying in %ds",
+                        service.name, READY_RETRY_SECONDS,
+                    )
 
             if service.due_for_recycle():
                 if scan_in_progress():
