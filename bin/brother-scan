@@ -1,0 +1,3 @@
+#!/bin/sh
+# Invoked by brscan-skey as: brother-scan <key> <sane-device>
+exec python3 -m brother.scan "$@"

@@ -1,14 +1,13 @@
 #!/bin/bash
 set -e
+
+# The CUPS base image sets up /config and runs its init.d hooks here. It ends
+# with `$@`, so clear the arguments before sourcing and restore them after.
 saved=("$@")
 set --
-source ${PREFIX}/bin/docker-entrypoint.sh
-cupsd
-lpadmin -p "${PRINTER_NAME}" -E -v "ipp://${PRINTER_IP}" -P /opt/brother/Printers/MFCL2700DW/cupswrapper/brother-MFCL2700DW-cups-en.ppd
-echo `lpstat -p "${PRINTER_NAME}" -l`
-lpoptions -d "${PRINTER_NAME}"
+source "${PREFIX}/bin/docker-entrypoint.sh"
+set -- "${saved[@]}"
 
-brsaneconfig4 -a name="${DEVICE_NAME}" model=${MODEL} ip=${PRINTER_IP}
+python3 -m brother.provision
 
-set -- ${saved[*]}
 exec "$@"
