@@ -110,6 +110,28 @@ into reading order and the whole document is written as one PDF. Press a differe
 key, wait out the threshold, or lose the first pass's files and the pending job is
 abandoned rather than resumed.
 
+# Driver installation
+
+Brother's `linux-brprinter-installer` does two things a plain `dpkg -i` does not,
+both of which this image now replicates:
+
+* **32-bit runtime.** The LPR driver is i386, and the CUPS filter chain ends in
+  `rawtobr3` / `brprintconflsr3`. Without a 32-bit loader those exit 0 and emit
+  nothing, so CUPS reports every job as successful while printing blank. The image
+  installs `lib32stdc++6` (which pulls `libc6-i386`) and the build fails if
+  `/lib/ld-linux.so.2` is missing.
+* **`/etc/init.d` stubs.** The installer symlinks `cups`, `cupsys`, `lpd` and
+  `lprng` to `/bin/true` so the packages' `postinst` service restarts succeed.
+
+The packages are installed with `--force-architecture` only — the i386 drivers are
+genuinely foreign-arch, but nothing else is forced, so a real failure fails the
+build. `brscan-skey` declares a dependency on `curl`, which is installed rather
+than forced past, and `apt-get check` gates the layer.
+
+A build-time smoke test pushes a PostScript job through
+`brother_lpdwrapper_MFCL2700DW` and fails unless it produces a PJL stream. This
+class of breakage is silent at runtime, so it is caught at build time instead.
+
 # Process supervision
 
 `brscan-skey-exe` is a closed-source Brother binary that segfaults in
