@@ -71,7 +71,7 @@ All four also inherit `width: 215.88`, `height: 279.4` (US Letter, mm) and
 | `source` | auto | only to override that automatic choice |
 | `width` / `height` | `215.88` / `279.4` | millimetres |
 | `batch_threshold` | `10m` | window to press the same key again for side two |
-| `flatten` | `true` | gray modes only: divide each page by an estimate of the paper so tinted or unevenly shaded paper scans white (~1s/page); colour modes are never touched |
+| `white_point` | `true` | gray modes only: stretch each page so its brightest 2% is white, so tinted paper scans white; pages that already have white paper, and photos, are left essentially unchanged; colour modes are never touched |
 
 Anything under `keys:` overrides `defaults:` for that key alone:
 

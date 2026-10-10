@@ -17,7 +17,7 @@ from pathlib import Path
 import img2pdf
 
 from . import config as configlib
-from . import flatten
+from . import whitepoint
 from .runlock import scan_lock
 
 log = logging.getLogger("scan")
@@ -78,9 +78,9 @@ def run_scanimage(device, profile, template, batch_start, batch_increment,
         files = scanned_files(template)
         new_files = set(files) - before
         if new_files:
-            if profile["flatten"] and flatten.is_gray_mode(profile["mode"]):
+            if profile["white_point"] and whitepoint.is_gray_mode(profile["mode"]):
                 for path in sorted(new_files):
-                    flatten.flatten_page(path)
+                    whitepoint.stretch_white(path)
             return files
 
         if attempt < attempts:
