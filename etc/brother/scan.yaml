@@ -38,7 +38,9 @@ defaults:
   resolution: 300
   width: 215.88
   height: 279.4
-  mode: Gray[Error Diffusion]
+  # Not `Gray[Error Diffusion]`: that is the scanner's own dithering and turns light
+  # greys into a field of black dots. `True Gray` is continuous tone.
+  mode: True Gray
   duplex: false
   batch_threshold: 10m            # window to press the same key again for side two
   # source:                       # defaults to the ADF, duplex variant when duplex: true

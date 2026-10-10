@@ -48,7 +48,7 @@ BUILTIN = {
         "resolution": 300,
         "width": 215.88,
         "height": 279.4,
-        "mode": "Gray[Error Diffusion]",
+        "mode": "True Gray",
         "source": None,
         "duplex": False,
         "batch_threshold": "10m",
