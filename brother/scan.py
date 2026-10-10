@@ -17,6 +17,7 @@ from pathlib import Path
 import img2pdf
 
 from . import config as configlib
+from . import flatten
 from .runlock import scan_lock
 
 log = logging.getLogger("scan")
@@ -75,7 +76,11 @@ def run_scanimage(device, profile, template, batch_start, batch_increment,
             log.debug("scanimage exited %s", result.returncode)
 
         files = scanned_files(template)
-        if set(files) - before:
+        new_files = set(files) - before
+        if new_files:
+            if profile["flatten"] and flatten.is_gray_mode(profile["mode"]):
+                for path in sorted(new_files):
+                    flatten.flatten_page(path)
             return files
 
         if attempt < attempts:

@@ -52,6 +52,7 @@ BUILTIN = {
         "source": None,
         "duplex": False,
         "batch_threshold": "10m",
+        "flatten": True,
     },
     "keys": {
         "file": {"duplex": False},
@@ -102,7 +103,7 @@ def _from_file(path):
 
 # Field name -> the environment suffix that overrides it. Scan fields are
 # addressable per key (SCAN_OCR_RESOLUTION) and globally (SCAN_DEFAULT_RESOLUTION).
-_SCAN_FIELDS = ("resolution", "width", "height", "mode", "source", "duplex", "batch_threshold")
+_SCAN_FIELDS = ("resolution", "width", "height", "mode", "source", "duplex", "batch_threshold", "flatten")
 
 
 def _env_scan_overrides(prefix):
@@ -156,6 +157,7 @@ def scan_profile(config, key):
 
     profile = _deep_merge(config["defaults"], config["keys"].get(key, {}))
     profile["duplex"] = boolean(profile["duplex"])
+    profile["flatten"] = boolean(profile["flatten"])
     profile["resolution"] = int(profile["resolution"])
     profile["width"] = float(profile["width"])
     profile["height"] = float(profile["height"])
