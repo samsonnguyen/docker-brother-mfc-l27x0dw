@@ -53,8 +53,8 @@ Shipped defaults:
 
 | Key | duplex | mode | resolution | source |
 | --- | --- | --- | --- | --- |
-| `file` | no | `Gray[Error Diffusion]` | 300 | ADF |
-| `ocr` | yes | `Gray[Error Diffusion]` | 300 | ADF duplex |
+| `file` | no | `True Gray` | 300 | ADF |
+| `ocr` | yes | `True Gray` | 300 | ADF duplex |
 | `email` | yes | `24bit Color[Fast]` | 300 | ADF duplex |
 | `image` | no | `24bit Color[Fast]` | 300 | ADF |
 
@@ -66,18 +66,19 @@ All four also inherit `width: 215.88`, `height: 279.4` (US Letter, mm) and
 | Field | Default | Notes |
 | --- | --- | --- |
 | `resolution` | `300` | 100, 150, 200, 300, 400, 600, 1200… |
-| `mode` | `Gray[Error Diffusion]` | must match the driver's string exactly |
+| `mode` | `True Gray` | must match the driver's string exactly |
 | `duplex` | `false` | selects the ADF source automatically |
 | `source` | auto | only to override that automatic choice |
 | `width` / `height` | `215.88` / `279.4` | millimetres |
 | `batch_threshold` | `10m` | window to press the same key again for side two |
+| `white_point` | `true` | gray modes only: stretch each page so its brightest 2% is white, so tinted paper scans white; pages that already have white paper, and photos, are left essentially unchanged; colour modes are never touched |
 
 Anything under `keys:` overrides `defaults:` for that key alone:
 
 ```yaml
 defaults:
   resolution: 300
-  mode: Gray[Error Diffusion]
+  mode: True Gray
   duplex: false
 
 keys:
